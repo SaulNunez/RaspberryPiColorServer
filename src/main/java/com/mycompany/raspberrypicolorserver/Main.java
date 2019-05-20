@@ -1,6 +1,5 @@
 package com.mycompany.raspberrypicolorserver;
 
-import com.pi4j.io.gpio.RaspiPin;
 import java.awt.Color;
 
 /*
@@ -14,7 +13,7 @@ import java.awt.Color;
  */
 public class Main {
     static Color ledColor =  Color.black;
-    public static void main() {
+    public static void main(String[] args) {
         LedSet ledSet = new LedSet(1, 4, 5);
         Conexion c = new Conexion(new IOnShitReceived() {
             @Override
