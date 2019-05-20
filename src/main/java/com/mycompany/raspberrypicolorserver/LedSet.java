@@ -5,39 +5,38 @@ package com.mycompany.raspberrypicolorserver;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.wiringpi.Gpio;
+import com.pi4j.wiringpi.SoftPwm;
 import java.awt.Color;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author saul
  */
 public class LedSet extends Thread implements IColorInfoObtain {
+    int pinRed, pinGreen, pinBlue;
 
-    final GpioController gpio;
-    final PinSetStrobe red, green, blue;
+    public LedSet(int pinRed, int pinGreen, int pinBlue) {
+        this.pinRed = pinRed;
+        this.pinGreen = pinGreen;
+        this.pinBlue = pinBlue;
+        
+        Gpio.wiringPiSetup();
 
-    public LedSet(Pin pinRed, Pin pinGreen, Pin pinBlue) {
-        gpio = GpioFactory.getInstance();
-        red = new PinSetStrobe(gpio, pinRed, "Red LED");
-        blue = new PinSetStrobe(gpio, pinBlue, "Blue LED");
-        green = new PinSetStrobe(gpio, pinGreen, "Green LED");
+        SoftPwm.softPwmCreate(pinRed, 0, 100);
+        SoftPwm.softPwmCreate(pinGreen, 0, 100);
+        SoftPwm.softPwmCreate(pinBlue, 0, 100);
     }
 
     @Override
     public void SetColor(Color c) {
-        red.setClockrate((double) c.getRed() / 256);
-        blue.setClockrate((double) c.getBlue() / 256);
-        green.setClockrate((double) c.getGreen() / 256);
-
+        SoftPwm.softPwmWrite(pinRed, (int) ((c.getRed() / 256.0) * 100));
+        SoftPwm.softPwmWrite(pinBlue, (int) ((c.getBlue() / 256.0) * 100));
+        SoftPwm.softPwmWrite(pinGreen, (int) ((c.getGreen() / 256.0) * 100));
         System.out.println("Colors updated");
     }
 
@@ -52,22 +51,7 @@ public class LedSet extends Thread implements IColorInfoObtain {
 
         @Override
         public void run() {
-            while (true) {
-                try {
-                    if (clockrate != 0) {
-                        gpioPinDigitalOutput.high();
-                        Thread.sleep((long) clockrate);
-                        gpioPinDigitalOutput.low();
-                        Thread.sleep((long) (1 / clockrate));
-                    } else {
-                        gpioPinDigitalOutput.low();
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(LedSet.class.getName()).log(Level.SEVERE, null, ex);
-                }
 
-            }
         }
 
         public void setClockrate(double newRate) {
@@ -81,17 +65,6 @@ public class LedSet extends Thread implements IColorInfoObtain {
 
         public double getClockrate() {
             return clockrate;
-        }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            if (gpio != null) {
-                gpio.shutdown();
-            }
-        } finally {
-            super.finalize();
         }
     }
 }

@@ -14,8 +14,8 @@ import java.awt.Color;
  */
 public class Main {
     static Color ledColor =  Color.black;
-    public static void Main() {
-        LedSet ledSet = new LedSet(RaspiPin.GPIO_00, RaspiPin.GPIO_01, RaspiPin.GPIO_02);
+    public static void main() {
+        LedSet ledSet = new LedSet(1, 4, 5);
         Conexion c = new Conexion(new IOnShitReceived() {
             @Override
             public String MessageReceived(String message) {
