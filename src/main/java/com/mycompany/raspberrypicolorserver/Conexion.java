@@ -42,13 +42,15 @@ public class Conexion extends Thread implements ISendBroadcastMessage {
             try {
                 Socket cliente = servidor.accept();
                 clients.add(new ClientDirectConection(cliente, iOnShitReceived, this));
+                System.out.println("Cliente conectado");
             } catch (IOException ex) {
                 Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    public void desconectar() {
+    @Override
+    protected void finalize() {
         try {
             clients.forEach((client) -> client.close());
             servidor.close();
@@ -92,6 +94,7 @@ public class Conexion extends Thread implements ISendBroadcastMessage {
             while (true) {
                 try {
                     String mensaje = entrada.readLine();
+                    System.out.println("Message received");
                     String broadcastResponse = iOnShitReceived.MessageReceived(mensaje);
                     if(broadcastResponse != null){
                         iSendBroadcastMessage.BroadcastMessage(broadcastResponse);

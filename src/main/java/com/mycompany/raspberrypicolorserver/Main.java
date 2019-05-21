@@ -15,7 +15,6 @@ public class Main {
     static Color ledColor =  Color.black;
     public static void main(String[] args) {
         System.out.println("Iniciando servidor...");
-        LedSet ledSet = new LedSet(1, 4, 5);
         Conexion c = new Conexion(new IOnShitReceived() {
             @Override
             public String MessageReceived(String message) {
@@ -30,7 +29,7 @@ public class Main {
                         b = Integer.parseInt(keywords[3]);
 
                         Color c = new Color(r, g, b);
-                        ledSet.SetColor(c);
+                        System.out.println(String.format("Color cambiado a %i %i %i", c.getRed(), c.getGreen(), c.getBlue()));
                         ledColor = c;
                         return message;
                     }
@@ -38,9 +37,9 @@ public class Main {
                     if ("power".equals(keywords[0])) {
                         Boolean turnOn = Boolean.getBoolean(keywords[1]);
                         if(!turnOn){
-                            ledSet.SetColor(Color.BLACK);
+                            System.out.println("Foco apagado");
                         } else {
-                            ledSet.SetColor(ledColor);
+                            System.out.println("Foco encendido");
                         }
                         return message;
                     }
@@ -49,5 +48,6 @@ public class Main {
             }
 
         });
+        c.start();
     }
 }
