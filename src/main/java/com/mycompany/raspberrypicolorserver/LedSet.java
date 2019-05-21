@@ -67,4 +67,11 @@ public class LedSet extends Thread implements IColorInfoObtain {
             return clockrate;
         }
     }
+    
+    @Override
+    protected void finalize(){
+        SoftPwm.softPwmStop(pinRed);
+        SoftPwm.softPwmStop(pinGreen);
+        SoftPwm.softPwmStop(pinBlue);
+    }
 }

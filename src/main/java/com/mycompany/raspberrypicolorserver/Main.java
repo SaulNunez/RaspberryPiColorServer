@@ -14,6 +14,7 @@ import java.awt.Color;
 public class Main {
     static Color ledColor =  Color.black;
     public static void main(String[] args) {
+        System.out.println("Iniciando servidor...");
         LedSet ledSet = new LedSet(1, 4, 5);
         Conexion c = new Conexion(new IOnShitReceived() {
             @Override
