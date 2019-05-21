@@ -41,7 +41,9 @@ public class Conexion extends Thread implements ISendBroadcastMessage {
         while (true) {
             try {
                 Socket cliente = servidor.accept();
-                clients.add(new ClientDirectConection(cliente, iOnShitReceived, this));
+                ClientDirectConection client = new ClientDirectConection(cliente, iOnShitReceived, this);
+                client.start();
+                clients.add(client);
                 System.out.println("Cliente conectado");
             } catch (IOException ex) {
                 Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,38 +76,33 @@ public class Conexion extends Thread implements ISendBroadcastMessage {
         ISendBroadcastMessage iSendBroadcastMessage;
 
         public ClientDirectConection(Socket cliente,
-                IOnShitReceived iOnShitReceived, 
+                IOnShitReceived iOnShitReceived,
                 ISendBroadcastMessage iSendBroadcastMessage) {
             this.iSendBroadcastMessage = iSendBroadcastMessage;
             this.cliente = cliente;
             this.iOnShitReceived = iOnShitReceived;
 
-            try {
-                e = new InputStreamReader(cliente.getInputStream());
-                entrada = new BufferedReader(e);
-                salida = new DataOutputStream(cliente.getOutputStream());
-            } catch (IOException ex) {
-                Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
 
         @Override
         public void run() {
             while (true) {
                 try {
-                    String mensaje = entrada.readLine();
-                    System.out.println("Message received");
-                    String broadcastResponse = iOnShitReceived.MessageReceived(mensaje);
-                    if(broadcastResponse != null){
+                    e = new InputStreamReader(cliente.getInputStream());
+                    entrada = new BufferedReader(e);
+                    salida = new DataOutputStream(cliente.getOutputStream());
+                    String broadcastResponse = iOnShitReceived.MessageReceived(entrada.readLine());
+                    if (broadcastResponse != null) {
                         iSendBroadcastMessage.BroadcastMessage(broadcastResponse);
                     }
+                    System.out.println("Message received");
                 } catch (IOException ex) {
                     Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
-        
-        public void send(String message){
+
+        public void send(String message) {
             try {
                 salida.writeUTF(message);
             } catch (IOException ex) {
@@ -119,6 +116,18 @@ public class Conexion extends Thread implements ISendBroadcastMessage {
             } catch (IOException ex) {
                 Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        
+        @Override
+        protected void finalize(){
+            try {
+                entrada.close();
+                salida.close();
+                cliente.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
     }
 }

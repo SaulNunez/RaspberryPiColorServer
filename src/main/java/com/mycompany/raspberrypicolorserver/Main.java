@@ -29,17 +29,17 @@ public class Main {
                         b = Integer.parseInt(keywords[3]);
 
                         Color c = new Color(r, g, b);
-                        System.out.println(String.format("Color cambiado a %i %i %i", c.getRed(), c.getGreen(), c.getBlue()));
+                        System.out.println(String.format("Color cambiado a %d %d %d", c.getRed(), c.getGreen(), c.getBlue()));
                         ledColor = c;
                         return message;
                     }
                 } else if (keywords.length == 2) {
                     if ("power".equals(keywords[0])) {
-                        Boolean turnOn = Boolean.getBoolean(keywords[1]);
-                        if(!turnOn){
-                            System.out.println("Foco apagado");
-                        } else {
+                        Boolean turnOn = Boolean.parseBoolean(keywords[1]);
+                        if(turnOn){
                             System.out.println("Foco encendido");
+                        } else {
+                            System.out.println("Foco apagado");
                         }
                         return message;
                     }
